@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "SnippetBlaze",
+  "name": "raid-text",
   "version": "1.0",
   "description": "Expansor de texto personal — atajos ilimitados y gratuitos",
   "permissions": ["storage", "activeTab"],

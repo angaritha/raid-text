@@ -1,8 +1,8 @@
 # raid-text
 
-Expansor de texto personal para Chrome — atajos ilimitados.
+Expansor de texto personal para Chrome — atajos ilimitados y gratuitos.
 
-Una alternativa open source.
+Una alternativa open source a Text Blaze, sin límites de snippets ni suscripción.
 
 ## Instalación
 
