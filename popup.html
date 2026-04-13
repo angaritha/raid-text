@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>SnippetBlaze</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    width: 380px;
+    background: #fff;
+    color: #111;
+    font-size: 14px;
+  }
+
+  .header {
+    padding: 16px 16px 12px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 15px;
+    color: #4F46E5;
+  }
+  .logo svg { width: 20px; height: 20px; }
+  .count-badge {
+    font-size: 11px;
+    background: #EEF2FF;
+    color: #4F46E5;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+
+  .toolbar {
+    padding: 10px 12px;
+    display: flex;
+    gap: 6px;
+    border-bottom: 1px solid #f5f5f5;
+  }
+  .search {
+    flex: 1;
+    padding: 6px 10px;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    font-size: 13px;
+    outline: none;
+  }
+  .search:focus { border-color: #4F46E5; }
+  .btn-new {
+    padding: 6px 14px;
+    background: #4F46E5;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .btn-new:hover { background: #4338CA; }
+
+  .list {
+    max-height: 320px;
+    overflow-y: auto;
+  }
+  .snippet-row {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    border-bottom: 1px solid #f7f7f7;
+    gap: 10px;
+    cursor: pointer;
+  }
+  .snippet-row:hover { background: #fafafa; }
+  .shortcut-tag {
+    font-size: 12px;
+    font-weight: 600;
+    background: #F3F4F6;
+    color: #374151;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    min-width: 50px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .snippet-info { flex: 1; min-width: 0; }
+  .snippet-name { font-weight: 500; font-size: 13px; color: #111; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .snippet-preview { font-size: 11px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
+  .row-actions { display: flex; gap: 4px; }
+  .btn-icon {
+    width: 28px; height: 28px;
+    border: none; background: transparent;
+    border-radius: 6px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: #aaa;
+  }
+  .btn-icon:hover { background: #f0f0f0; color: #555; }
+  .btn-icon.del:hover { background: #FEE2E2; color: #DC2626; }
+
+  .empty {
+    padding: 32px 16px;
+    text-align: center;
+    color: #aaa;
+    font-size: 13px;
+  }
+
+  /* Editor panel */
+  .editor {
+    display: none;
+    padding: 14px;
+    border-top: 2px solid #4F46E5;
+    background: #fafafa;
+  }
+  .editor.active { display: block; }
+  .editor h3 { font-size: 13px; font-weight: 600; color: #4F46E5; margin-bottom: 12px; }
+  .field { margin-bottom: 10px; }
+  .field label { display: block; font-size: 11px; color: #666; margin-bottom: 4px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.03em; }
+  .field input, .field textarea {
+    width: 100%; padding: 8px 10px;
+    border: 1px solid #e5e5e5; border-radius: 8px;
+    font-size: 13px; outline: none;
+    font-family: inherit;
+    background: #fff;
+  }
+  .field input:focus, .field textarea:focus { border-color: #4F46E5; }
+  .field textarea { min-height: 80px; resize: vertical; }
+  .hint { font-size: 11px; color: #9CA3AF; margin-top: 4px; }
+  .editor-actions { display: flex; gap: 8px; margin-top: 12px; }
+  .btn-save {
+    flex: 1; padding: 8px;
+    background: #4F46E5; color: #fff;
+    border: none; border-radius: 8px;
+    cursor: pointer; font-size: 13px; font-weight: 500;
+  }
+  .btn-save:hover { background: #4338CA; }
+  .btn-cancel-edit {
+    padding: 8px 14px;
+    border: 1px solid #e5e5e5; background: #fff;
+    border-radius: 8px; cursor: pointer; font-size: 13px; color: #555;
+  }
+
+  .footer {
+    padding: 8px 12px;
+    border-top: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .btn-export, .btn-import-label {
+    font-size: 11px; color: #888;
+    background: none; border: none; cursor: pointer; padding: 3px 6px;
+    border-radius: 4px;
+  }
+  .btn-export:hover, .btn-import-label:hover { background: #f0f0f0; color: #333; }
+  #import-file { display: none; }
+  .footer-actions { display: flex; gap: 4px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M3 5h14M3 10h9M3 15h6" stroke="#4F46E5" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="16" cy="14" r="3.5" fill="#4F46E5"/>
+      <path d="M14.5 14h3M16 12.5v3" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+    </svg>
+    SnippetBlaze
+  </div>
+  <span class="count-badge" id="count-badge">0 atajos</span>
+</div>
+
+<div class="toolbar">
+  <input class="search" id="search" placeholder="Buscar atajo o nombre..." />
+  <button class="btn-new" id="btn-new">+ Nuevo</button>
+</div>
+
+<div class="list" id="list">
+  <div class="empty">Cargando...</div>
+</div>
+
+<div class="editor" id="editor">
+  <h3 id="editor-title">Nuevo atajo</h3>
+  <div class="field">
+    <label>Atajo</label>
+    <input id="f-shortcut" placeholder="Ej: /ty  o  /saludo" />
+    <div class="hint">Escribe este texto en cualquier campo para expandirlo.</div>
+  </div>
+  <div class="field">
+    <label>Nombre</label>
+    <input id="f-name" placeholder="Descripción corta" />
+  </div>
+  <div class="field">
+    <label>Texto expandido</label>
+    <textarea id="f-body" placeholder="Escribe el texto completo aquí...&#10;&#10;Usa {nombre}, {empresa}, etc. para campos dinámicos.&#10;Usa {fecha} o {hora} para fecha/hora automática."></textarea>
+    <div class="hint">{fecha} = fecha de hoy · {hora} = hora actual · {cualquier_palabra} = te pedirá ese dato al insertar</div>
+  </div>
+  <div class="editor-actions">
+    <button class="btn-cancel-edit" id="btn-cancel-edit">Cancelar</button>
+    <button class="btn-save" id="btn-save">Guardar atajo</button>
+  </div>
+</div>
+
+<div class="footer">
+  <div class="footer-actions">
+    <button class="btn-export" id="btn-export">↓ Exportar</button>
+    <label class="btn-import-label">
+      ↑ Importar
+      <input type="file" id="import-file" accept=".json" />
+    </label>
+  </div>
+  <span style="font-size:11px;color:#ccc;">v1.0</span>
+</div>
+
+<script src="popup.js"></script>
+</body>
+</html>
